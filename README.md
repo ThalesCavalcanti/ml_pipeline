@@ -1,8 +1,8 @@
-#Mini Pipeline de Machine Learning
+# Mini Pipeline de Machine Learning
 
 Este projeto demonstra a criação de um **pipeline de aprendizado de máquina automatizado** em Python, utilizando o dataset *California Housing*.
 
-##Etapas do Pipeline
+## Etapas do Pipeline
 1. **Carregamento de dados:** usando `fetch_california_housing` do scikit-learn.  
 2. **Pré-processamento:** normalização com `StandardScaler`.  
 3. **Treinamento:** modelo de regressão linear (`LinearRegression`).  
