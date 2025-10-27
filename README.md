@@ -12,4 +12,4 @@ Este projeto demonstra a criação de um **pipeline de aprendizado de máquina a
 ## Como executar
 ```bash
 pip install -r requirements.txt
-python pipeline.py
+python main.py
