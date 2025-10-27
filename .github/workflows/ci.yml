@@ -25,7 +25,7 @@ jobs:
 
       - name: Executar pipeline de ML
         run: |
-          python main_pipeline.py
+          python main.py
 
       - name: Salvar artefatos (modelo e métricas)
         uses: actions/upload-artifact@v4
