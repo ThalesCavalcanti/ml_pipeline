@@ -7,8 +7,36 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-train:
+  # ============================================================
+  # 1️⃣ JOB - SAST: Análise Estática de Segurança (CodeQL)
+  # ============================================================
+  sast:
+    name: SAST - Static Application Security Testing
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: python
+
+      - name: Executar análise CodeQL
+        uses: github/codeql-action/analyze@v3
+
+  # ============================================================
+  # 2️⃣ JOB - Treinamento de ML (Pipeline principal)
+  # ============================================================
+  build-and-train:
+    name: Build & Train ML Model
+    runs-on: ubuntu-latest
+    needs: sast  # Executa só após o SAST ser concluído
 
     steps:
       - name: Baixar repositório
@@ -34,3 +62,36 @@ jobs:
           path: |
             model.pkl
             metrics.json
+
+  # ============================================================
+  # 3️⃣ JOB - DAST: Teste Dinâmico de Segurança (OWASP ZAP)
+  # ============================================================
+  dast:
+    name: DAST - Dynamic Application Security Testing
+    runs-on: ubuntu-latest
+    needs: build-and-train  # Só roda após o treinamento do modelo
+
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Instalar OWASP ZAP
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zaproxy
+
+      - name: Subir aplicação para teste
+        run: |
+          # Exemplo: ajuste conforme seu app serve a API (FastAPI, Flask, etc.)
+          nohup python app.py &  
+          sleep 10
+
+      - name: Rodar varredura de segurança OWASP ZAP
+        run: |
+          zap-baseline.py -t http://localhost:8000 -r zap_report.html
+
+      - name: Salvar relatório ZAP
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap_report
+          path: zap_report.html
