@@ -60,26 +60,23 @@ jobs:
   dast:
     name: DAST - Dynamic Application Security Testing
     runs-on: ubuntu-latest
-    needs: build-and-train  # Só roda após o treinamento do modelo
+    needs: build-and-train
 
     steps:
       - name: Baixar repositório
         uses: actions/checkout@v4
 
-      - name: Instalar OWASP ZAP
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y zaproxy
-
       - name: Subir aplicação para teste
         run: |
-          # Exemplo: ajuste conforme seu app serve a API (FastAPI, Flask, etc.)
-          nohup python app.py &  
+          # Suba sua aplicação em background (ajuste conforme necessário)
+          nohup python app.py &
           sleep 10
 
-      - name: Rodar varredura de segurança OWASP ZAP
+      - name: Rodar varredura OWASP ZAP (via Docker)
         run: |
-          zap-baseline.py -t http://localhost:8000 -r zap_report.html
+          docker run --network="host" -v $(pwd):/zap/wrk/:rw owasp/zap2docker-stable zap-baseline.py \
+            -t http://localhost:8000 \
+            -r zap_report.html
 
       - name: Salvar relatório ZAP
         uses: actions/upload-artifact@v4
